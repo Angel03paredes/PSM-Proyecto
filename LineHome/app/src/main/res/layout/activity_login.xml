@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/btnLoginGoogle2"
+        android:id="@+id/btnLoginFacebook"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginTop="8dp"
@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/editTextLoginUE"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginStart="32dp"
@@ -40,22 +40,24 @@
         android:layout_marginEnd="32dp"
         android:drawableStart="@drawable/ic_baseline_person_24"
         android:ems="10"
+        android:hint="Usuario o correo"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/editTextLoginPassword"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginTop="16dp"
         android:drawableStart="@drawable/ic_baseline_lock_24"
         android:ems="10"
+        android:hint="Contraseña"
         android:inputType="textPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPersonName"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPersonName"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
+        app:layout_constraintEnd_toEndOf="@+id/editTextLoginUE"
+        app:layout_constraintStart_toStartOf="@+id/editTextLoginUE"
+        app:layout_constraintTop_toBottomOf="@+id/editTextLoginUE" />
 
     <Button
         android:id="@+id/btnLoginEntrar"
@@ -65,9 +67,9 @@
         android:backgroundTint="@color/primary_color"
         android:text="Entrar"
         app:cornerRadius="20dp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintEnd_toEndOf="@+id/editTextLoginPassword"
+        app:layout_constraintStart_toStartOf="@+id/editTextLoginPassword"
+        app:layout_constraintTop_toBottomOf="@+id/editTextLoginPassword" />
 
     <TextView
         android:id="@+id/textView2"
@@ -104,10 +106,10 @@
         android:text="¿No tienes cuenta? Registrate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLoginGoogle2" />
+        app:layout_constraintTop_toBottomOf="@+id/btnLoginFacebook" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/btnLoginClose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
