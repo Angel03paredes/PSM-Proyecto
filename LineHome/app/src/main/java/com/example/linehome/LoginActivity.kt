@@ -19,11 +19,21 @@ class LoginActivity : AppCompatActivity() {
             showHome()
         }
 
+        txtActivitySignUp.setOnClickListener {
+            showSignUp()
+        }
+
     }
 
     private fun showHome() {
         val activityHome = Intent(this, HomeActivity::class.java)
         startActivity(activityHome)
+        finish()
+    }
+
+    private fun showSignUp(){
+        val activitySignUp = Intent(this,RegisterActivity::class.java)
+        startActivity(activitySignUp)
         finish()
     }
 

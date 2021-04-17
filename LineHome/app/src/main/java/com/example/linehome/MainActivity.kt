@@ -3,6 +3,7 @@ package com.example.linehome
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -17,7 +18,16 @@ class MainActivity : AppCompatActivity() {
         btnRegistrarte.setOnClickListener {
             showRegister()
         }
+
+        btnExit.setOnClickListener{
+            exitApplication();
+        }
+
+
+
     }
+
+
 
     private fun showLogin() {
         val activityLogin = Intent(this, LoginActivity::class.java)
@@ -27,5 +37,10 @@ class MainActivity : AppCompatActivity() {
     private fun showRegister() {
         val activityRegister = Intent(this, RegisterActivity::class.java)
         startActivity(activityRegister)
+    }
+
+    private fun exitApplication(){
+        finish()
+        System.exit(0)
     }
 }
