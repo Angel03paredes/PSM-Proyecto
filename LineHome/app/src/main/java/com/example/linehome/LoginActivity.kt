@@ -15,7 +15,7 @@ class LoginActivity : AppCompatActivity() {
             finish()
         }
 
-        btnLoginEntrar.setOnClickListener {
+        btnContact.setOnClickListener {
             showHome()
         }
 

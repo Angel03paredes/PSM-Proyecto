@@ -33,11 +33,13 @@ class HomeActivity : AppCompatActivity() {
     private fun ShowCMS() {
         var activityCMS = Intent(this,CMSActivity::class.java)
         startActivity(activityCMS);
+        finish()
     }
 
     private fun showActivityProfile() {
         var activityProfile = Intent(this, ProfileActivity::class.java)
         startActivity(activityProfile);
+        finish()
     }
 
 }
