@@ -1,0 +1,16 @@
+package com.example.linehome.services
+
+import com.example.linehome.models.User
+import retrofit2.Call
+import retrofit2.http.*
+
+interface UserService {
+
+    @GET("getUserById/{id}")
+    fun getUserById(@Path("id") id: Int): Call<User>
+
+    @Headers( "Content-Type: application/json")
+    @POST("getUserByUserOrEmailAndPassword")
+    fun getUserByUserOrEmailAndPassword(@Body user: User): Call<List<User>>
+
+}
