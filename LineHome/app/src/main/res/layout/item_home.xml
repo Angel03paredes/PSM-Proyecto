@@ -30,7 +30,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:menu="@menu/botton_menu">
+                app:menu="@menu/post_menu">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -45,10 +45,10 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        tools:srcCompat="@tools:sample/avatars" />
+                        android:src="@drawable/ic_account"/>
 
                     <TextView
-                        android:id="@+id/textView8"
+                        android:id="@+id/userNamePost"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingLeft="5dp"
@@ -76,7 +76,7 @@
                     android:layout_height="200dp"
                     android:layout_weight="1"
                     android:scaleType="centerCrop"
-                    tools:srcCompat="@tools:sample/backgrounds/scenic" />
+                    android:src="@drawable/background" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -87,7 +87,7 @@
 
 
                     <TextView
-                        android:id="@+id/textView9"
+                        android:id="@+id/titlePost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingLeft="5dp"
@@ -95,7 +95,7 @@
                         android:text="title hardcode" />
 
                     <EditText
-                        android:id="@+id/editTextTextMultiLine"
+                        android:id="@+id/descriptionPost"
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
                         android:ems="10"
@@ -128,7 +128,7 @@
                             app:srcCompat="@drawable/ic_baseline_location_on_24" />
 
                         <TextView
-                            android:id="@+id/textView12"
+                            android:id="@+id/locationPost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -142,7 +142,7 @@
                             app:srcCompat="@drawable/ic_baseline_attach_money_24" />
 
                         <TextView
-                            android:id="@+id/textView13"
+                            android:id="@+id/pricePost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -150,7 +150,7 @@
                     </LinearLayout>
 
                     <TextView
-                        android:id="@+id/textView10"
+                        android:id="@+id/datePost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Date Hardcode" />

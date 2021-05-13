@@ -1,10 +1,16 @@
 package com.example.linehome
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.linehome.adapters.PostAdapter
+import com.example.linehome.models.Post
+import kotlinx.android.synthetic.main.fragment_home.view.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +27,10 @@ class HomeFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+
+    private var postAdapter:PostAdapter? = null
+    val listPost = mutableListOf<Post>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -33,8 +43,22 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+
+        val sharedPreferences : SharedPreferences = requireContext().getSharedPreferences("SharedP", Context.MODE_PRIVATE)
+        val user = sharedPreferences.getString("id", "")
+
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        listPost.add(Post(1,1,"Casa de lujo","Esta casa evaluada el 300,000 pesos en Jalisco","Gudalajara,Jalisco","2,000","24/10/2021"))
+        postAdapter = PostAdapter(requireContext(), listPost )
+
+        val llm = LinearLayoutManager(requireContext())
+        llm.orientation = LinearLayoutManager.VERTICAL
+        view.rvPostHome.setLayoutManager(llm)
+        view.rvPostHome.setAdapter(postAdapter)
+
+
+        return view
     }
 
     companion object {

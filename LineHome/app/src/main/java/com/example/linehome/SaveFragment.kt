@@ -1,10 +1,19 @@
 package com.example.linehome
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.linehome.adapters.PostAdapter
+import com.example.linehome.adapters.SaveAdapter
+import com.example.linehome.models.Post
+import kotlinx.android.synthetic.main.fragment_home.view.*
+import kotlinx.android.synthetic.main.fragment_home.view.rvPostHome
+import kotlinx.android.synthetic.main.fragment_save.view.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +30,9 @@ class SaveFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private var postAdapter:SaveAdapter? = null
+    val listSave = mutableListOf<Post>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -33,8 +45,21 @@ class SaveFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_save, container, false)
+        val view = inflater.inflate(R.layout.fragment_save, container, false)
+
+        val sharedPreferences : SharedPreferences = requireContext().getSharedPreferences("SharedP", Context.MODE_PRIVATE)
+        val user = sharedPreferences.getString("id", "")
+
+
+        listSave.add(Post(2,1,"Departamento 420","Depa en buen estado","Escobedo,NuevoLeon","1,000","21/03/2021"))
+        postAdapter = SaveAdapter(requireContext(), listSave )
+
+        val llm = LinearLayoutManager(requireContext())
+        llm.orientation = LinearLayoutManager.VERTICAL
+        view.rvSave.setLayoutManager(llm)
+        view.rvSave.setAdapter(postAdapter)
+
+        return view
     }
 
     companion object {

@@ -69,29 +69,29 @@
             </androidx.appcompat.widget.Toolbar>
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/imgProfileActivity"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:layout_marginTop="24dp"
                 android:foreground="@drawable/image_rounded"
                 android:scaleType="fitXY"
-                android:src="@drawable/background"
+                android:src="@drawable/ic_account"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar3" />
 
             <TextView
-                android:id="@+id/textView15"
+                android:id="@+id/txtUserName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="Username harcode"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView" />
+                app:layout_constraintTop_toBottomOf="@+id/imgProfileActivity" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/btn_changeImage"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginStart="50dp"
@@ -103,7 +103,7 @@
                 app:cornerRadius="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView15"
+                app:layout_constraintTop_toBottomOf="@+id/txtUserName"
                 app:strokeColor="@color/black"
                 app:strokeWidth="2dp" />
 
@@ -121,7 +121,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button4"
+                app:layout_constraintTop_toBottomOf="@+id/btn_changeImage"
                 app:strokeColor="@color/black"
                 app:strokeWidth="2dp" />
 

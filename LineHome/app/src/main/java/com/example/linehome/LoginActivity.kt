@@ -1,7 +1,10 @@
 package com.example.linehome
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.linehome.models.User
 import com.example.linehome.services.RestEngine
@@ -12,7 +15,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
-
+    private lateinit var sharedPreferences: SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -50,17 +53,19 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun getUserLogin(emailUser: String, password: String) {
-        //val user = User(null, emailUser, emailUser, password, null)
+        val user = User(null, emailUser, emailUser, password, null)
         val userService: UserService = RestEngine.getRestEngine().create(UserService::class.java)
-        val result: Call<User> = userService.getUserById(1)
+        val result: Call<User> = userService.getUserByUserOrEmailAndPassword(user)
 
         result.enqueue(object : Callback<User> {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 val item = response.body()
                 if(item != null) {
-                    println(item)
-                    println(item.userName)
-                    println(item.email)
+
+                    action(item)
+
+                }else{
+                    Toast.makeText(this@LoginActivity,"No sse ha podido ingresar", Toast.LENGTH_LONG).show()
                 }
             }
 
@@ -68,6 +73,19 @@ class LoginActivity : AppCompatActivity() {
                 println(t.toString())
             }
         })
+    }
+
+    private fun action(item: User) {
+        val activityHome = Intent(this,HomeActivity::class.java)
+        sharedPreferences = getSharedPreferences("SharedP", Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putString("id",item.id.toString())
+        editor.putString("userName",item.userName)
+        editor.putString("email",item.email)
+        editor.putString("password",item.password)
+        editor.putString("imageUrl",item.imageUrl)
+        editor.apply()
+        startActivity(activityHome)
     }
 
 }

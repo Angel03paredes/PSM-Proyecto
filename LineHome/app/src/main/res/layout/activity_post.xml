@@ -130,7 +130,7 @@
                     app:srcCompat="@drawable/ic_baseline_location_on_24" />
 
                 <TextView
-                    android:id="@+id/textView12"
+                    android:id="@+id/locationPost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -144,7 +144,7 @@
                     app:srcCompat="@drawable/ic_baseline_attach_money_24" />
 
                 <TextView
-                    android:id="@+id/textView13"
+                    android:id="@+id/pricePost"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

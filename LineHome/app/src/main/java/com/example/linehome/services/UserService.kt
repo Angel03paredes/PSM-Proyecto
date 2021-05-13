@@ -11,6 +11,10 @@ interface UserService {
 
     @Headers( "Content-Type: application/json")
     @POST("getUserByUserOrEmailAndPassword")
-    fun getUserByUserOrEmailAndPassword(@Body user: User): Call<List<User>>
+    fun getUserByUserOrEmailAndPassword(@Body user: User): Call<User>
+
+    @Headers( "Content-Type: application/json")
+    @POST("addUser")
+    fun addUser(@Body user: User): Call<User>
 
 }

@@ -52,7 +52,7 @@
         android:layout_marginEnd="32dp"
         android:drawableStart="@drawable/ic_baseline_person_24"
         android:ems="10"
-        android:hint="Usuario o correo"
+        android:hint="Nombre de usuario o correo"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
