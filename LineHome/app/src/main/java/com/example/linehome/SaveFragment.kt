@@ -8,11 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.linehome.adapters.PostAdapter
 import com.example.linehome.adapters.SaveAdapter
 import com.example.linehome.models.Post
-import kotlinx.android.synthetic.main.fragment_home.view.*
-import kotlinx.android.synthetic.main.fragment_home.view.rvPostHome
 import kotlinx.android.synthetic.main.fragment_save.view.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -51,7 +48,7 @@ class SaveFragment : Fragment() {
         val user = sharedPreferences.getString("id", "")
 
 
-        listSave.add(Post(2,1,"Departamento 420","Depa en buen estado","Escobedo,NuevoLeon","1,000","21/03/2021"))
+        listSave.add(Post(1,"Casa de lujo","Esta casa evaluada el 300,000 pesos en Jalisco", 2300000, "Gudalajara,Jalisco","Casas",1))
         postAdapter = SaveAdapter(requireContext(), listSave )
 
         val llm = LinearLayoutManager(requireContext())

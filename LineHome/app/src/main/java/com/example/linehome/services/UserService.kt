@@ -17,4 +17,7 @@ interface UserService {
     @POST("addUser")
     fun addUser(@Body user: User): Call<User>
 
+    @Headers( "Content-Type: application/json")
+    @POST("uploadImage/{id}")
+    fun updateImageUser(@Path("id") id: Int, @Body user: User): Call<String>
 }

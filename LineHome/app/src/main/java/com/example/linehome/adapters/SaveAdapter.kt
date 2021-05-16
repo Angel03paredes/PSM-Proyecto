@@ -21,10 +21,10 @@ class SaveAdapter(private val context: Context, private val listPost: List<Post>
 
     override fun onBindViewHolder(holder: SaveAdapter.SaveViewHolder, position: Int) {
         val item = listPost[position]
-        holder.itemView.userNamePost.text = "El id del usuario es: " + item.user
-        holder.itemView.titlePost.text = item.title
-        holder.itemView.datePost.text = item.date.toString()
-        holder.itemView.pricePost.text = item.price
+        holder.itemView.userNamePost.text = "El id del usuario es: " + item.owner
+        holder.itemView.titlePost.text = item.titlePublication
+        holder.itemView.datePost.text = item.createdAt
+        holder.itemView.pricePost.text = item.price.toString()
         holder.itemView.locationPost.text = item.location
     }
 
