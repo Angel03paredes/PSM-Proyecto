@@ -2,16 +2,21 @@ package com.example.linehome
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
+import android.widget.RatingBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.linehome.models.*
 import com.example.linehome.services.*
 import com.synnapps.carouselview.ImageListener
+import com.synnapps.carouselview.ViewListener
 import kotlinx.android.synthetic.main.activity_post.*
+import kotlinx.android.synthetic.main.item_carousel.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,12 +24,11 @@ import java.util.*
 
 class PostActivity : AppCompatActivity() {
 
-    var sampleImages = intArrayOf(
-        R.drawable.dubai,
-        R.drawable.moscow,
-        R.drawable.paris,
-        R.drawable.uk
-    )
+
+
+
+    var INTERNET_AVAILABLE : Boolean = true
+    var listImages = mutableListOf<ByteArray>()
 
     var publicationId: Int = 0
 
@@ -39,17 +43,43 @@ class PostActivity : AppCompatActivity() {
             finish()
         }
 
-        carouselView.setPageCount(sampleImages.size);
-        carouselView.setImageListener(imageListener)
+
+
+
+
 
         getPublication()
+
+
+
+
+      showCarousel()
+
+        INTERNET_AVAILABLE=isNetDisponible()
+        if(!INTERNET_AVAILABLE){
+            var publication:PostPreview
+            publication = DBApplication.dataDBHelper.getPublicationPreviewById(publicationId)
+            textViewTitlePost.text = publication.titlePublication
+            textViewDateP.text = "Publicado en: " + publication.createdAt
+            textViewDescription.text = publication.description
+            pricePost.text = publication.price.toString()
+            locationPost.text = publication.location
+            ratingBar.rating = publication.evaluation?.toFloat()!!
+            textViewUserPost.text = publication?.ownerName
+            imageView8.setImageBitmap(publication.imageOwner)
+        }
     }
 
-    var imageListener: ImageListener = object : ImageListener {
-        override fun setImageForPosition(position: Int, imageView: ImageView) {
-            // You can use Glide or Picasso here
-            imageView.setImageResource(sampleImages[position])
+    var imageListener: ViewListener = object : ViewListener  {
+        override fun setViewForPosition(position: Int): View {
+            val view : View = getLayoutInflater().inflate(R.layout.item_carousel, null);
+            var decodeImg = BitmapFactory.decodeByteArray(listImages?.get(position), 0, listImages?.get(position)!!.size)
+            view.imgPostCarousel.setImageBitmap(decodeImg)
+            return view
         }
+        // You can use Glide or Picasso here
+            //imageView.setImageResource(sampleImages[position])
+
     }
 
     private fun getPublication() {
@@ -68,7 +98,7 @@ class PostActivity : AppCompatActivity() {
 
                     val publicationPhotoService: PublicationPhotoService = RestEngine.getRestEngine().create(
                         PublicationPhotoService::class.java)
-                    val resultImage: Call<PublicationPhoto> = publicationPhotoService.getFirstImageByPublication(post.id!!)
+                    val resultImage: Call<List<PublicationPhoto>> = publicationPhotoService.getPublicationPhotoByPublicationId(post.id!!)
 
                     val publicationEvaluationService: PublicationEvaluationService = RestEngine.getRestEngine().create(
                         PublicationEvaluationService::class.java)
@@ -109,33 +139,21 @@ class PostActivity : AppCompatActivity() {
                         }
                     })
 
-                    resultImage.enqueue(object : Callback<PublicationPhoto> {
+                    resultImage.enqueue(object : Callback<List<PublicationPhoto>>{
                         @RequiresApi(Build.VERSION_CODES.O)
-                        override fun onResponse(call: Call<PublicationPhoto>, response: Response<PublicationPhoto>) {
-                            var image = response.body()
-                            if(image != null) {
-                                /*publicationImage = PublicationPhoto(image.id, image.publicationId, image.image)
+                        override fun onResponse(call: Call<List<PublicationPhoto>>, response: Response<List<PublicationPhoto>>) {
+                            var images = response.body()
+                            if(images != null) {
+                                    for(image in images){
+                                        var imageBytes = Base64.getDecoder().decode(image.image)
+                                      //  var decodeImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                        listImages.add(imageBytes)
+                                    }
 
-                                var decodedImageOwner: Bitmap? = null
-                                var decodedImagePublication: Bitmap? = null
+                                showCarousel()
 
-                                if(owner?.imageUrl != null) {
-                                    var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
-                                    decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                                }
 
-                                if(publicationImage?.image != null) {
-                                    val imageBytes = Base64.getDecoder().decode(publicationImage?.image)
-                                    decodedImagePublication = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                                }
 
-                                var postPreview: PostPreview? = null
-
-                                if(evaluationP != null) {
-                                    postPreview = PostPreview(post.id, owner?.userName, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
-                                } else {
-                                    postPreview = PostPreview(post.id, owner?.userName, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
-                                }*/
 
                                 var decodedImageOwner: Bitmap? = null
 
@@ -153,12 +171,13 @@ class PostActivity : AppCompatActivity() {
                                 textViewUserPost.text = owner?.userName
                                 imageView8.setImageBitmap(decodedImageOwner)
 
+
                             } else {
                                 println("Imagen no encontrada.")
                             }
                         }
 
-                        override fun onFailure(call: Call<PublicationPhoto>, t: Throwable) {
+                        override fun onFailure(call: Call<List<PublicationPhoto>>, t: Throwable) {
                             println(t.toString())
                         }
                     })
@@ -170,5 +189,19 @@ class PostActivity : AppCompatActivity() {
             }
 
         })
+
+
     }
+
+    private fun showCarousel() {
+        carouselView.pageCount = listImages.size
+        carouselView.setViewListener(imageListener)
+    }
+
+    private fun isNetDisponible(): Boolean {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val actNetInfo = connectivityManager.activeNetworkInfo
+        return actNetInfo != null && actNetInfo.isConnected
+    }
+
 }

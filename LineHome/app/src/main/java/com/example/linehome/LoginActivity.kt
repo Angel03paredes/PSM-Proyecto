@@ -65,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
                     action(item)
 
                 }else{
-                    Toast.makeText(this@LoginActivity,"No sse ha podido ingresar", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@LoginActivity,"No se ha podido ingresar", Toast.LENGTH_LONG).show()
                 }
             }
 

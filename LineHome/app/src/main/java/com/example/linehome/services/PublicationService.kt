@@ -2,8 +2,7 @@ package com.example.linehome.services
 
 import com.example.linehome.models.Post
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface PublicationService {
 
@@ -12,4 +11,9 @@ interface PublicationService {
 
     @GET("getPublicationById/{id}")
     fun getPublicationById(@Path("id") id: Int): Call<Post>
+
+    @Headers( "Content-Type: application/json")
+    @POST("addPublication")
+    fun addPublication(@Body publication:Post): Call<Post>
+
 }

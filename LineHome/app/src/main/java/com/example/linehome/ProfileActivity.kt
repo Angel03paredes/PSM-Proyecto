@@ -36,6 +36,7 @@ import java.util.*
 class ProfileActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userName:String
+    private lateinit var idUser:String
     private lateinit var imageBs : String
     var imgArray:ByteArray? =  null
 
@@ -47,6 +48,7 @@ class ProfileActivity : AppCompatActivity() {
         val sharedPreferences : SharedPreferences = getSharedPreferences("SharedP", Context.MODE_PRIVATE)
         userName = sharedPreferences.getString("userName","").toString()
         imageBs = sharedPreferences.getString("imageUrl","").toString()
+        idUser = sharedPreferences.getString("id","").toString()
 
         val imageBytes = Base64.getDecoder().decode(imageBs)
         val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
@@ -54,7 +56,7 @@ class ProfileActivity : AppCompatActivity() {
 
         txtUserName.text = userName
 
-        getAvatar()
+
 
         btn_changeImage.setOnClickListener {
             changeImage()
@@ -70,7 +72,7 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun getAvatar() {
-        val avatar:ByteArray? = dataDBHelper.getAvatar()
+      //  val avatar:ByteArray? = dataDBHelper.getAvatar()
         /*if(avatar != null){
             imgProfileActivity.setImageBitmap(ImageUtilities.getBitMapFromByteArray(avatar))
         }*/
@@ -154,23 +156,7 @@ class ProfileActivity : AppCompatActivity() {
         super.onActivityResult(requestcode, resultcode, intent)
 
         if (resultcode == Activity.RESULT_OK) {
-    /*
 
-            //RESPUESTA DE LA CÁMARA CON TIENE LA IMAGEN
-            if (requestcode == 1002) {
-
-                val photo =  data?.extras?.get("data") as Bitmap
-                val stream = ByteArrayOutputStream()
-                //Bitmap.CompressFormat agregar el formato desado, estoy usando aqui jpeg
-                photo.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-                //Agregamos al objecto album el arreglo de bytes
-                val albumEdit:Album =  DataManager.albums[albumPosition]
-                albumEdit.imgArray =  stream.toByteArray()
-                //Mostramos la imagen en la vista
-                this.imgAlbum.setImageBitmap(photo)
-
-            }
-    */
             if(requestcode == 1000) {
 
                 this.imgProfileActivity.setImageURI(data?.data)
@@ -180,7 +166,7 @@ class ProfileActivity : AppCompatActivity() {
                 val baos = ByteArrayOutputStream()
 
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 25, baos)
-                dataDBHelper.insertAvatar(baos.toByteArray())
+               // dataDBHelper.insertAvatar(baos.toByteArray())
                 imgArray = baos.toByteArray()
                 saveImageUser();
             }
@@ -189,7 +175,7 @@ class ProfileActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveImageUser() {
-        val idUserString = "3"
+        val idUserString = idUser
         val encodedString:String =  Base64.getEncoder().encodeToString(this.imgArray)
         val user = User(idUserString.toInt(), null, null, null, encodedString)
         val userService : UserService = RestEngine.getRestEngine().create(UserService::class.java)

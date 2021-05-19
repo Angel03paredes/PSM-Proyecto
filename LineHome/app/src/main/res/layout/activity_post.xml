@@ -179,6 +179,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/textViewUserPost"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout4"
+                android:foreground="@drawable/image_rounded"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView

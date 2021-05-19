@@ -1,9 +1,11 @@
 package com.example.linehome
 
 import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -11,21 +13,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.linehome.DBApplication.Companion.dataDBHelper
 import com.example.linehome.adapters.PostAdapter
 import com.example.linehome.models.*
 import com.example.linehome.services.*
+import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+
 import kotlin.math.log
 
 class HomeFragment : Fragment() {
 
     private var postAdapter:PostAdapter? = null
     val listPost = mutableListOf<PostPreview>()
+    var INTERNET_AVAILABLE : Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,12 +52,28 @@ class HomeFragment : Fragment() {
         view.rvPostHome.setLayoutManager(llm)
         view.rvPostHome.setAdapter(postAdapter)
 
-        getPublication()
+        INTERNET_AVAILABLE = isNetDisponible()
 
+        if(INTERNET_AVAILABLE) {
+            getPublication()
+        }
+        else {
+            showPublicationsDisconected()
+        }
         return view
     }
 
+    private fun showPublicationsDisconected() {
+        var listPublication:List<PostPreview>
+        listPublication = dataDBHelper.getPublicationPreview()
+        for(post in listPublication){
+            listPost.add(post)
+            postAdapter?.notifyDataSetChanged()
+        }
+    }
+
     private fun getPublication() {
+        dataDBHelper.truncatePublicatePreview()
         val publicationService: PublicationService = RestEngine.getRestEngine().create(PublicationService::class.java)
         val result: Call<List<Post>> = publicationService.getPublications()
 
@@ -79,6 +103,7 @@ class HomeFragment : Fragment() {
                                 val user = response.body()
                                 if(user != null){
                                     owner = User(user.id, user.userName, user.email, null, user.imageUrl)
+
                                 } else {
                                     println("Usuario no encontrado.")
                                 }
@@ -133,7 +158,7 @@ class HomeFragment : Fragment() {
                                     } else {
                                         postPreview = PostPreview(post.id, owner?.userName, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
                                     }
-
+                                    dataDBHelper.insertPublicationPreview(postPreview)
                                     listPost.add(postPreview)
                                     postAdapter?.notifyDataSetChanged()
                                 } else {
@@ -174,4 +199,13 @@ class HomeFragment : Fragment() {
 
         })
     }
+
+
+    private fun isNetDisponible(): Boolean {
+
+        val connectivityManager = requireContext().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val actNetInfo = connectivityManager.activeNetworkInfo
+        return actNetInfo != null && actNetInfo.isConnected
+    }
+
 }
