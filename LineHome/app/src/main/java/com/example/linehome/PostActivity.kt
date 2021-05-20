@@ -1,40 +1,49 @@
 package com.example.linehome
 
+import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
-import android.widget.ImageView
-import android.widget.RatingBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.example.linehome.models.*
 import com.example.linehome.services.*
-import com.synnapps.carouselview.ImageListener
 import com.synnapps.carouselview.ViewListener
 import kotlinx.android.synthetic.main.activity_post.*
+import kotlinx.android.synthetic.main.alert_ratingbar.*
 import kotlinx.android.synthetic.main.item_carousel.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.ByteArrayOutputStream
 import java.util.*
 
 class PostActivity : AppCompatActivity() {
 
 
-
-
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var idUser : String
+    lateinit var dialog:Dialog
     var INTERNET_AVAILABLE : Boolean = true
+    var showDialog: Boolean = false
     var listImages = mutableListOf<ByteArray>()
+    var ratinCalificated: Int? = null
 
     var publicationId: Int = 0
 
+    @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_post)
+        dialog = Dialog(this)
 
         val bundle = intent.extras
         publicationId = bundle?.getInt("publicationId")!!
@@ -43,12 +52,21 @@ class PostActivity : AppCompatActivity() {
             finish()
         }
 
-
-
-
+        ratingBar.setOnTouchListener(View.OnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (showDialog) {
+                    showAlertRatingBar()
+                } else {
+                    Toast.makeText(this@PostActivity, "Esta publicación la calificaste con :" + ratinCalificated.toString(), Toast.LENGTH_LONG).show()
+                }
+            }
+            return@OnTouchListener true
+        })
 
 
         getPublication()
+
+        checkEvaluation()
 
 
 
@@ -59,15 +77,91 @@ class PostActivity : AppCompatActivity() {
         if(!INTERNET_AVAILABLE){
             var publication:PostPreview
             publication = DBApplication.dataDBHelper.getPublicationPreviewById(publicationId)
-            textViewTitlePost.text = publication.titlePublication
-            textViewDateP.text = "Publicado en: " + publication.createdAt
-            textViewDescription.text = publication.description
-            pricePost.text = publication.price.toString()
-            locationPost.text = publication.location
-            ratingBar.rating = publication.evaluation?.toFloat()!!
-            textViewUserPost.text = publication?.ownerName
-            imageView8.setImageBitmap(publication.imageOwner)
+       showPublicationDisconnected(publication)
+
         }
+    }
+
+    private fun checkEvaluation() {
+        val sharedPreferences : SharedPreferences = getSharedPreferences("SharedP", Context.MODE_PRIVATE)
+        idUser = sharedPreferences.getString("id", "").toString()
+
+        val publicationEvaluationService: PublicationEvaluationService = RestEngine.getRestEngine().create(PublicationEvaluationService::class.java)
+        val result: Call<Evaluation> = publicationEvaluationService.getEvaluationByUserAndPublication(publicationId, Integer.parseInt(idUser))
+
+        result.enqueue(object : Callback<Evaluation> {
+            override fun onResponse(call: Call<Evaluation>, response: Response<Evaluation>) {
+                var resp = response.body()
+                if (resp != null) {
+                    ratinCalificated = resp.evaluation
+                } else {
+                    showDialog = true
+                }
+            }
+
+            override fun onFailure(call: Call<Evaluation>, t: Throwable) {
+                print(t)
+            }
+        })
+    }
+
+    private fun showAlertRatingBar() {
+
+        dialog.setContentView(R.layout.alert_ratingbar)
+        dialog.show()
+
+        dialog.btnCloseDialog.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        //dialog.ratingBar2.setOnRatingBarChangeListener { ratingBar, fl, b ->  }
+
+        dialog.button.setOnClickListener {
+            val ratFloat:Float = dialog.ratingBar2.getRating()
+            val rating:Int =  ratFloat.toInt()
+            showDialog=false
+            addEvaluation(rating)
+
+        }
+        
+    }
+
+    private fun addEvaluation(rating: Int) {
+        val sharedPreferences : SharedPreferences = getSharedPreferences("SharedP", Context.MODE_PRIVATE)
+        idUser = sharedPreferences.getString("id", "").toString()
+        val publicationEvaluationService: PublicationEvaluationService = RestEngine.getRestEngine().create(PublicationEvaluationService::class.java)
+        val result: Call<Evaluation> = publicationEvaluationService.addEvaluation(Evaluation(null, publicationId, Integer.parseInt(idUser), rating))
+
+        result.enqueue(object : Callback<Evaluation> {
+            override fun onResponse(call: Call<Evaluation>, response: Response<Evaluation>) {
+                var resp = response.body()
+                if (resp != null) {
+                    Toast.makeText(this@PostActivity, "Esta publicación la calificaste con : " + rating.toString(), Toast.LENGTH_LONG).show()
+                    ratinCalificated = resp.evaluation
+                    dialog.dismiss()
+
+                }
+            }
+
+            override fun onFailure(call: Call<Evaluation>, t: Throwable) {
+                print(t)
+            }
+        })
+    }
+
+    private fun showPublicationDisconnected(postPreview: PostPreview) {
+        textViewTitlePost.text = postPreview.titlePublication
+        textViewDateP.text = "Publicado en: " + postPreview.createdAt
+        textViewDescription.text = postPreview.description
+        pricePost.text = postPreview.price.toString()
+        locationPost.text = postPreview.location
+        ratingBar.rating = postPreview.evaluation?.toFloat()!!
+        textViewUserPost.text = postPreview?.ownerName
+        imageView8.setImageBitmap(postPreview.imageOwner)
+        val baos = ByteArrayOutputStream()
+        postPreview.imagePublication?.compress(Bitmap.CompressFormat.JPEG, 25, baos)
+        listImages.add(baos.toByteArray())
+        showCarousel()
     }
 
     var imageListener: ViewListener = object : ViewListener  {
@@ -90,18 +184,18 @@ class PostActivity : AppCompatActivity() {
             override fun onResponse(call: Call<Post>, response: Response<Post>) {
                 var resPost = response.body()
 
-                if(resPost != null) {
+                if (resPost != null) {
                     var post = Post(resPost.id, resPost.titlePublication, resPost.description, resPost.price, resPost.location, resPost.category, resPost.owner, resPost.createdAt)
 
                     val userService: UserService = RestEngine.getRestEngine().create(UserService::class.java)
                     val resultUser: Call<User> = userService.getUserById(post.owner!!)
 
                     val publicationPhotoService: PublicationPhotoService = RestEngine.getRestEngine().create(
-                        PublicationPhotoService::class.java)
+                            PublicationPhotoService::class.java)
                     val resultImage: Call<List<PublicationPhoto>> = publicationPhotoService.getPublicationPhotoByPublicationId(post.id!!)
 
                     val publicationEvaluationService: PublicationEvaluationService = RestEngine.getRestEngine().create(
-                        PublicationEvaluationService::class.java)
+                            PublicationEvaluationService::class.java)
                     val resultEvaluation: Call<EvaluationPreview> = publicationEvaluationService.getEvaluationByPublication(post.id!!)
 
                     var owner: User? = null
@@ -111,7 +205,7 @@ class PostActivity : AppCompatActivity() {
                     resultUser.enqueue(object : Callback<User> {
                         override fun onResponse(call: Call<User>, response: Response<User>) {
                             val user = response.body()
-                            if(user != null){
+                            if (user != null) {
                                 owner = User(user.id, user.userName, user.email, null, user.imageUrl)
                             } else {
                                 println("Usuario no encontrado.")
@@ -127,10 +221,10 @@ class PostActivity : AppCompatActivity() {
                         override fun onResponse(call: Call<EvaluationPreview>, response: Response<EvaluationPreview>) {
                             val evaluation = response.body()
 
-                            if(evaluation != null) {
+                            if (evaluation != null) {
                                 evaluationP = evaluation
 
-                                if(evaluationP?.average == null) evaluationP?.average = 0
+                                if (evaluationP?.average == null) evaluationP?.average = 0
                             }
                         }
 
@@ -139,25 +233,23 @@ class PostActivity : AppCompatActivity() {
                         }
                     })
 
-                    resultImage.enqueue(object : Callback<List<PublicationPhoto>>{
+                    resultImage.enqueue(object : Callback<List<PublicationPhoto>> {
                         @RequiresApi(Build.VERSION_CODES.O)
                         override fun onResponse(call: Call<List<PublicationPhoto>>, response: Response<List<PublicationPhoto>>) {
                             var images = response.body()
-                            if(images != null) {
-                                    for(image in images){
-                                        var imageBytes = Base64.getDecoder().decode(image.image)
-                                      //  var decodeImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                                        listImages.add(imageBytes)
-                                    }
+                            if (images != null) {
+                                for (image in images) {
+                                    var imageBytes = Base64.getDecoder().decode(image.image)
+                                    //  var decodeImg = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    listImages.add(imageBytes)
+                                }
 
                                 showCarousel()
 
 
-
-
                                 var decodedImageOwner: Bitmap? = null
 
-                                if(owner?.imageUrl != null) {
+                                if (owner?.imageUrl != null) {
                                     var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
                                     decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                                 }

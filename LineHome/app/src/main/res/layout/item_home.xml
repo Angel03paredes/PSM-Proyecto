@@ -99,6 +99,8 @@
                         android:id="@+id/descriptionPost"
                         android:layout_width="wrap_content"
                         android:layout_height="100dp"
+                        android:clickable="false"
+                        android:editable="false"
                         android:ems="10"
                         android:gravity="start|top"
                         android:inputType="textMultiLine" />
@@ -124,21 +126,21 @@
 
                         <ImageView
                             android:id="@+id/imageView12"
-                            android:layout_width="wrap_content"
+                            android:layout_width="5dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:srcCompat="@drawable/ic_baseline_location_on_24" />
 
                         <TextView
                             android:id="@+id/locationPost"
-                            android:layout_width="wrap_content"
+                            android:layout_width="24dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Location" />
 
                         <ImageView
                             android:id="@+id/imageView14"
-                            android:layout_width="wrap_content"
+                            android:layout_width="5dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             app:srcCompat="@drawable/ic_baseline_attach_money_24" />
