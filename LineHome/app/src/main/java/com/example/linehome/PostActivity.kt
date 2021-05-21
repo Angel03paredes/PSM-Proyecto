@@ -3,6 +3,7 @@ package com.example.linehome
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -36,8 +37,10 @@ class PostActivity : AppCompatActivity() {
     var showDialog: Boolean = false
     var listImages = mutableListOf<ByteArray>()
     var ratinCalificated: Int? = null
+    var isSavePost: Boolean = false;
 
     var publicationId: Int = 0
+    var ownerPublicationId: Int = 0
 
     @SuppressLint("WrongThread")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,12 +66,31 @@ class PostActivity : AppCompatActivity() {
             return@OnTouchListener true
         })
 
+        btnSavePost.setOnClickListener {
+            if(!isSavePost) {
+                savePost();
+            }
+        }
+
+        btnDeleteSavePost.setOnClickListener {
+            if(isSavePost) {
+                deleteSavePost()
+            }
+        }
+
+        textViewUserPost.setOnClickListener {
+            val  activityIntent =  Intent(this, OtherProfileActivity::class.java)
+            activityIntent.putExtra("userId", ownerPublicationId)
+            startActivity(activityIntent)
+            finish()
+        }
+
 
         getPublication()
 
         checkEvaluation()
 
-
+        checkSavePost()
 
 
       showCarousel()
@@ -135,6 +157,7 @@ class PostActivity : AppCompatActivity() {
         result.enqueue(object : Callback<Evaluation> {
             override fun onResponse(call: Call<Evaluation>, response: Response<Evaluation>) {
                 var resp = response.body()
+                createNotification()
                 if (resp != null) {
                     Toast.makeText(this@PostActivity, "Esta publicación la calificaste con : " + rating.toString(), Toast.LENGTH_LONG).show()
                     ratinCalificated = resp.evaluation
@@ -206,6 +229,7 @@ class PostActivity : AppCompatActivity() {
                         override fun onResponse(call: Call<User>, response: Response<User>) {
                             val user = response.body()
                             if (user != null) {
+                                ownerPublicationId = user.id!!.toInt()
                                 owner = User(user.id, user.userName, user.email, null, user.imageUrl)
                             } else {
                                 println("Usuario no encontrado.")
@@ -283,6 +307,97 @@ class PostActivity : AppCompatActivity() {
         })
 
 
+    }
+
+    private fun checkSavePost() {
+        val savePublication = SavePublication(null, idUser.toInt(), publicationId)
+        val savePublicationService: SavePublicationService = RestEngine.getRestEngine().create(SavePublicationService::class.java)
+        val result: Call<SavePublication> = savePublicationService.getSavePublicationByUserAndPublication(savePublication.userId!!, savePublication.publicationId!!)
+
+        result.enqueue(object : Callback<SavePublication> {
+            override fun onResponse(
+                call: Call<SavePublication>,
+                response: Response<SavePublication>
+            ) {
+                var resp = response.body()
+
+                if (resp != null) {
+                    isSavePost = true
+                    btnSavePost.visibility = View.INVISIBLE
+                    btnDeleteSavePost.visibility = View.VISIBLE
+                } else {
+                    isSavePost = false
+                    btnSavePost.visibility = View.VISIBLE
+                    btnDeleteSavePost.visibility = View.INVISIBLE
+                }
+            }
+
+            override fun onFailure(call: Call<SavePublication>, t: Throwable) {
+                println(t.toString())
+            }
+
+        })
+
+    }
+
+    private fun savePost() {
+        val savePublication = SavePublication(null, idUser.toInt(), publicationId)
+        val savePublicationService: SavePublicationService = RestEngine.getRestEngine().create(SavePublicationService::class.java)
+        val result: Call<SavePublication> = savePublicationService.addSavePublication(savePublication)
+
+        result.enqueue(object : Callback<SavePublication> {
+            override fun onResponse( call: Call<SavePublication>,  response: Response<SavePublication>) {
+                var resp = response.body()
+
+                isSavePost = true
+                btnSavePost.visibility = View.INVISIBLE
+                btnDeleteSavePost.visibility = View.VISIBLE
+            }
+
+            override fun onFailure(call: Call<SavePublication>, t: Throwable) {
+                println(t.toString());
+            }
+
+        })
+    }
+
+    private fun deleteSavePost() {
+        val savePublication = SavePublication(null, idUser.toInt(), publicationId)
+        val savePublicationService: SavePublicationService = RestEngine.getRestEngine().create(SavePublicationService::class.java)
+        val result: Call<SavePublication> = savePublicationService.deleteSavePublication(savePublication)
+
+        result.enqueue(object : Callback<SavePublication> {
+            override fun onResponse( call: Call<SavePublication>,  response: Response<SavePublication>) {
+                var resp = response.body()
+
+                isSavePost = false
+                btnSavePost.visibility = View.VISIBLE
+                btnDeleteSavePost.visibility = View.INVISIBLE
+            }
+
+            override fun onFailure(call: Call<SavePublication>, t: Throwable) {
+                println(t.toString());
+            }
+
+        })
+    }
+
+    private fun createNotification() {
+        val notification = Notification(null, idUser.toInt(), ownerPublicationId, publicationId, null)
+        val notificationService: NotificationService = RestEngine.getRestEngine().create(NotificationService::class.java)
+        val result: Call<Notification> = notificationService.addNotification(notification)
+
+        result.enqueue(object : Callback<Notification> {
+            override fun onResponse(call: Call<Notification>, response: Response<Notification>) {
+                println(response.body())
+                println("Notificacion creada")
+            }
+
+            override fun onFailure(call: Call<Notification>, t: Throwable) {
+                println(t.toString())
+            }
+
+        })
     }
 
     private fun showCarousel() {

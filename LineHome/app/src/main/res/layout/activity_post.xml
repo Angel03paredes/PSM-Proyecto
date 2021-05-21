@@ -212,7 +212,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="32dp"
                 android:backgroundTint="@color/primary_color"
-                android:text="Entrar"
+                android:text="CONTACTAR"
                 app:cornerRadius="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -232,17 +232,21 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnContact" />
 
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/mapViewPost"
+            <Button
+                android:id="@+id/btnDeleteSavePost"
                 android:layout_width="0dp"
-                android:layout_height="300dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                android:backgroundTint="@android:color/white"
+                android:text="Borrar"
+                android:textColor="@android:color/holo_red_light"
+                android:visibility="invisible"
+                app:cornerRadius="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnSavePost" />
+                app:layout_constraintTop_toBottomOf="@+id/btnContact" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

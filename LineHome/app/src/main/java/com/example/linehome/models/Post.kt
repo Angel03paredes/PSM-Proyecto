@@ -10,5 +10,4 @@ data class Post(
         var owner:Int? = null,
         var createdAt: String? = null
 ) {
-
 }

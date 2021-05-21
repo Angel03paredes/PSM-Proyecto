@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 class PostPreview(
     var id:Int? = null,
     var ownerName: String? = null,
+    var ownerId: Int? = null,
     var imageOwner: Bitmap? = null,
     var imagePublication: Bitmap? = null,
     var titlePublication: String? = null,

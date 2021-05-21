@@ -5,7 +5,9 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.linehome.OtherProfileActivity
 import com.example.linehome.PostActivity
 import com.example.linehome.R
 import com.example.linehome.models.Post
@@ -42,6 +44,12 @@ class PostAdapter(private val context: Context, private val listPost: List<PostP
         holder.itemView.cvPost.setOnClickListener {
             val  activityIntent =  Intent(context, PostActivity::class.java)
             activityIntent.putExtra("publicationId", item.id)
+            context?.startActivity(activityIntent)
+        }
+
+        holder.itemView.toolbar2.setOnClickListener {
+            val  activityIntent =  Intent(context, OtherProfileActivity::class.java)
+            activityIntent.putExtra("userId", item.ownerId)
             context?.startActivity(activityIntent)
         }
 

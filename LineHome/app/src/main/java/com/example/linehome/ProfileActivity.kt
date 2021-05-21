@@ -69,6 +69,13 @@ class ProfileActivity : AppCompatActivity() {
         btnLogout.setOnClickListener {
             showStart()
         }
+
+        button5.setOnClickListener {
+            val  activityIntent =  Intent(this, OtherProfileActivity::class.java)
+            activityIntent.putExtra("userId", idUser.toInt())
+            startActivity(activityIntent)
+            finish()
+        }
     }
 
     private fun getAvatar() {

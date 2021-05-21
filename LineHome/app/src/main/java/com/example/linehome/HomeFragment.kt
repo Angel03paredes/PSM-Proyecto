@@ -154,9 +154,9 @@ class HomeFragment : Fragment() {
                                     var postPreview: PostPreview? = null
 
                                     if(evaluationPreview != null) {
-                                        postPreview = PostPreview(post.id, owner?.userName, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
                                     } else {
-                                        postPreview = PostPreview(post.id, owner?.userName, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
                                     }
                                     dataDBHelper.insertPublicationPreview(postPreview)
                                     listPost.add(postPreview)
