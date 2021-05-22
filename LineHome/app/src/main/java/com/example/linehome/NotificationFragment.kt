@@ -2,6 +2,7 @@ package com.example.linehome
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.os.Build
@@ -79,10 +80,16 @@ class NotificationFragment : Fragment() {
 
                 if(resp != null) {
                     for(notification in resp) {
-                        val imageBytes = Base64.getDecoder().decode(notification.imageUrl)
-                        val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        var decodedImage: Bitmap
+                        val not: NotifyPreview
+                        if(notification.imageUrl != null) {
+                            val imageBytes = Base64.getDecoder().decode(notification.imageUrl)
+                            decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                            not = NotifyPreview(notification.id, notification.userName, decodedImage, notification.createdAt)
+                        } else {
+                            not = NotifyPreview(notification.id, notification.userName, null, notification.createdAt)
+                        }
 
-                        val not = NotifyPreview(notification.id, notification.userName, decodedImage, notification.createdAt)
 
                         DBApplication.dataDBHelper.insertNotification(not)
 

@@ -52,7 +52,10 @@ class ProfileActivity : AppCompatActivity() {
 
         val imageBytes = Base64.getDecoder().decode(imageBs)
         val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        imgProfileActivity.setImageBitmap(decodedImage)
+
+        if(imageBs != "") {
+            imgProfileActivity.setImageBitmap(decodedImage)
+        }
 
         txtUserName.text = userName
 

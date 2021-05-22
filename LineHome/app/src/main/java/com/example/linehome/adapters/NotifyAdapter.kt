@@ -30,7 +30,9 @@ class NotifyAdapter(private val context: Context, private val notifyList:List<No
        val item = notifyList[position]
         holder.itemView.txtMessageNotify.text = "Te ha calificado"
 
-        holder.itemView.imageView5.setImageBitmap(item.imageUrl)
+        if(item.imageUrl != null){
+            holder.itemView.imageView5.setImageBitmap(item.imageUrl)
+        }
 
         holder.itemView.txtUserChat.text = item.userName
         holder.itemView.txtDateChat.text = item.createdAt

@@ -26,10 +26,11 @@
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:foreground="@drawable/image_rounded"
+                android:src="@drawable/ic_account"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@tools:sample/avatars" />
+                tools:srcCompat="@drawable/ic_account" />
 
             <TextView
                 android:id="@+id/txtUserChat"
