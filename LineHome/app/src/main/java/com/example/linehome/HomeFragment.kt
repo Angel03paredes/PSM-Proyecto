@@ -1,59 +1,211 @@
 package com.example.linehome
 
+import android.content.Context
+import android.content.Context.CONNECTIVITY_SERVICE
+import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.linehome.DBApplication.Companion.dataDBHelper
+import com.example.linehome.adapters.PostAdapter
+import com.example.linehome.models.*
+import com.example.linehome.services.*
+import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_home.view.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.util.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+import kotlin.math.log
 
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private var postAdapter:PostAdapter? = null
+    val listPost = mutableListOf<PostPreview>()
+    var INTERNET_AVAILABLE : Boolean = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+
+        val sharedPreferences : SharedPreferences = requireContext().getSharedPreferences("SharedP", Context.MODE_PRIVATE)
+        val user = sharedPreferences.getString("id", "")
+
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        postAdapter = PostAdapter(requireContext(), listPost )
+
+        val llm = LinearLayoutManager(requireContext())
+        llm.orientation = LinearLayoutManager.VERTICAL
+        view.rvPostHome.setLayoutManager(llm)
+        view.rvPostHome.setAdapter(postAdapter)
+
+        INTERNET_AVAILABLE = isNetDisponible()
+
+        if(INTERNET_AVAILABLE) {
+            getPublication()
+        }
+        else {
+            showPublicationsDisconected()
+        }
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun showPublicationsDisconected() {
+        var listPublication:List<PostPreview>
+        listPublication = dataDBHelper.getPublicationPreview()
+        for(post in listPublication){
+            listPost.add(post)
+            postAdapter?.notifyDataSetChanged()
+        }
+    }
+
+    private fun getPublication() {
+        dataDBHelper.truncatePublicatePreview()
+        val publicationService: PublicationService = RestEngine.getRestEngine().create(PublicationService::class.java)
+        val result: Call<List<Post>> = publicationService.getPublications()
+
+        result.enqueue(object : Callback<List<Post>> {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
+                var posts = response.body()
+
+                if(posts != null) {
+                    for(post in posts) {
+
+                        val userService: UserService = RestEngine.getRestEngine().create(UserService::class.java)
+                        val resultUser: Call<User> = userService.getUserById(post.owner!!)
+
+                        val publicationPhotoService: PublicationPhotoService = RestEngine.getRestEngine().create(PublicationPhotoService::class.java)
+                        val resultImage: Call<PublicationPhoto> = publicationPhotoService.getFirstImageByPublication(post.id!!)
+
+                        val publicationEvaluationService: PublicationEvaluationService = RestEngine.getRestEngine().create(PublicationEvaluationService::class.java)
+                        val resultEvaluation: Call<EvaluationPreview> = publicationEvaluationService.getEvaluationByPublication(post.id!!)
+
+                        var owner: User? = null
+                        var publicationImage: PublicationPhoto? = null
+                        var evaluationPreview: EvaluationPreview? = null
+
+                        resultUser.enqueue(object : Callback<User> {
+                            override fun onResponse(call: Call<User>, response: Response<User>) {
+                                val user = response.body()
+                                if(user != null){
+                                    owner = User(user.id, user.userName, user.email, null, user.imageUrl)
+
+                                } else {
+                                    println("Usuario no encontrado.")
+                                }
+                            }
+
+                            override fun onFailure(call: Call<User>, t: Throwable) {
+                                println(t.toString())
+                            }
+
+                        })
+
+                        resultEvaluation.enqueue(object : Callback<EvaluationPreview> {
+                            override fun onResponse(call: Call<EvaluationPreview>, response: Response<EvaluationPreview>) {
+                                val evaluation = response.body()
+
+                                if(evaluation != null) {
+                                    evaluationPreview = evaluation
+
+                                    if(evaluationPreview?.average == null) evaluationPreview?.average = 0
+                                }
+                            }
+
+                            override fun onFailure(call: Call<EvaluationPreview>, t: Throwable) {
+                                println(t.toString())
+                            }
+
+                        })
+
+                        resultImage.enqueue(object : Callback<PublicationPhoto> {
+                            override fun onResponse(call: Call<PublicationPhoto>, response: Response<PublicationPhoto>) {
+                                var image = response.body()
+                                if(image != null) {
+                                    publicationImage = PublicationPhoto(image.id, image.publicationId, image.image)
+
+                                    var decodedImageOwner: Bitmap? = null
+                                    var decodedImagePublication: Bitmap? = null
+
+                                    if(owner?.imageUrl != null) {
+                                        var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
+                                        decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    }
+
+                                    if(publicationImage?.image != null) {
+                                        val imageBytes = Base64.getDecoder().decode(publicationImage?.image)
+                                        decodedImagePublication = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    }
+
+                                    var postPreview: PostPreview? = null
+
+                                    if(evaluationPreview != null) {
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
+                                    } else {
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
+                                    }
+                                    dataDBHelper.insertPublicationPreview(postPreview)
+                                    listPost.add(postPreview)
+                                    postAdapter?.notifyDataSetChanged()
+                                } else {
+                                    println("Imagen no encontrada.")
+                                }
+                            }
+
+                            override fun onFailure(call: Call<PublicationPhoto>, t: Throwable) {
+                                println(t.toString())
+                            }
+
+                        })
+
+                        /*var decodedImageOwner: Bitmap? = null
+                        var decodedImagePublication: Bitmap? = null
+
+                        if(owner?.imageUrl != null) {
+                            var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
+                            decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        }
+
+                        if(publicationImage?.image != null) {
+                            val imageBytes = Base64.getDecoder().decode(publicationImage?.image)
+                            decodedImagePublication = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        }*/
+
+                        //val postPreview = PostPreview(post.id, owner?.userName, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 4, post.location, post.price, post.createdAt)
+
+                        //listPost.add(postPreview)
+                    }
+
                 }
             }
+
+            override fun onFailure(call: Call<List<Post>>, t: Throwable) {
+                println(t.toString())
+            }
+
+        })
     }
+
+
+    private fun isNetDisponible(): Boolean {
+
+        val connectivityManager = requireContext().getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val actNetInfo = connectivityManager.activeNetworkInfo
+        return actNetInfo != null && actNetInfo.isConnected
+    }
+
 }
