@@ -78,6 +78,8 @@ class HomeFragment : Fragment() {
         val publicationService: PublicationService = RestEngine.getRestEngine().create(PublicationService::class.java)
         val result: Call<List<Post>> = publicationService.getPublications()
 
+
+
         result.enqueue(object : Callback<List<Post>> {
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
@@ -100,70 +102,88 @@ class HomeFragment : Fragment() {
                         var evaluationPreview: EvaluationPreview? = null
 
 
+                        val thread = Thread {
+                            val resultUserExec = resultUser.execute();
+                            if(resultUserExec.isSuccessful){
+                                val user = resultUserExec.body()
+                                if(user != null){
+                                    owner = User(user.id, user.userName, user.email, null, user.imageUrl)
+
+                                } else {
+                                    println("Usuario no encontrado.")
+                                }
+                            }else{
+                                println("Error en request user.")
+                            }
+
+                            val resultEvaluationExec = resultEvaluation.execute();
+                            if(resultEvaluationExec.isSuccessful){
+                                val evaluation = resultEvaluationExec.body()
+                                if(evaluation != null){
+                                    evaluationPreview = evaluation
+
+                                    if(evaluationPreview?.average == null) evaluationPreview?.average = 0
+
+                                } else {
+                                    println("Evaluation not found")
+                                }
+                            }else{
+                                println("Error en request evaluation.")
+                            }
+
+                            val resultImageExec = resultImage.execute();
+                            if(resultImageExec.isSuccessful){
+                                val image = resultImageExec.body()
+                                if(image != null){
+                                    publicationImage = PublicationPhoto(image.id, image.publicationId, image.image)
+
+                                    var decodedImageOwner: Bitmap? = null
+                                    var decodedImagePublication: Bitmap? = null
+
+                                    if(owner?.imageUrl != null) {
+                                        var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
+                                        decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    }
+
+                                    if(publicationImage?.image != null) {
+                                        val imageBytes = Base64.getDecoder().decode(publicationImage?.image)
+                                        decodedImagePublication = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    }
+
+                                    var postPreview: PostPreview? = null
+
+                                    if(evaluationPreview != null) {
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
+                                    } else {
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
+                                    }
+                                    dataDBHelper.insertPublicationPreview(postPreview)
+                                    listPost.add(postPreview)
+                                    activity?.runOnUiThread {
+                                        postAdapter?.notifyDataSetChanged()
+                                    }
+
+
+                                } else {
+                                    println("Imagen no encontrado.")
+                                }
+                            }else{
+                                println("Error en request image.")
+                            }
+
+
+                        }
+                        thread.start()
 
 
 
 
+                        /*
                         resultUser.enqueue(object : Callback<User> {
                             override fun onResponse(call: Call<User>, response: Response<User>) {
                                 val user = response.body()
                                 if(user != null){
                                     owner = User(user.id, user.userName, user.email, null, user.imageUrl)
-                                    resultEvaluation.enqueue(object : Callback<EvaluationPreview> {
-                                        override fun onResponse(call: Call<EvaluationPreview>, response: Response<EvaluationPreview>) {
-                                            val evaluation = response.body()
-
-                                            if(evaluation != null) {
-                                                evaluationPreview = evaluation
-
-                                                if(evaluationPreview?.average == null) evaluationPreview?.average = 0
-                                                resultImage.enqueue(object : Callback<PublicationPhoto> {
-                                                    override fun onResponse(call: Call<PublicationPhoto>, response: Response<PublicationPhoto>) {
-                                                        var image = response.body()
-                                                        if(image != null) {
-                                                            publicationImage = PublicationPhoto(image.id, image.publicationId, image.image)
-
-                                                            var decodedImageOwner: Bitmap? = null
-                                                            var decodedImagePublication: Bitmap? = null
-
-                                                            if(owner?.imageUrl != null) {
-                                                                var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
-                                                                decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                                                            }
-
-                                                            if(publicationImage?.image != null) {
-                                                                val imageBytes = Base64.getDecoder().decode(publicationImage?.image)
-                                                                decodedImagePublication = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                                                            }
-
-                                                            var postPreview: PostPreview? = null
-
-                                                            if(evaluationPreview != null) {
-                                                                postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
-                                                            } else {
-                                                                postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
-                                                            }
-                                                            dataDBHelper.insertPublicationPreview(postPreview)
-                                                            listPost.add(postPreview)
-                                                            postAdapter?.notifyDataSetChanged()
-                                                        } else {
-                                                            println("Imagen no encontrada.")
-                                                        }
-                                                    }
-
-                                                    override fun onFailure(call: Call<PublicationPhoto>, t: Throwable) {
-                                                        println(t.toString())
-                                                    }
-
-                                                })
-                                            }
-                                        }
-
-                                        override fun onFailure(call: Call<EvaluationPreview>, t: Throwable) {
-                                            println(t.toString())
-                                        }
-
-                                    })
 
                                 } else {
                                     println("Usuario no encontrado.")
@@ -174,12 +194,65 @@ class HomeFragment : Fragment() {
                                 println(t.toString())
                             }
 
+                        })*/
+    /*
+                        resultEvaluation.enqueue(object : Callback<EvaluationPreview> {
+                            override fun onResponse(call: Call<EvaluationPreview>, response: Response<EvaluationPreview>) {
+                                val evaluation = response.body()
+
+                                if(evaluation != null) {
+                                    evaluationPreview = evaluation
+
+                                    if(evaluationPreview?.average == null) evaluationPreview?.average = 0
+                                }
+                            }
+
+                            override fun onFailure(call: Call<EvaluationPreview>, t: Throwable) {
+                                println(t.toString())
+                            }
+
                         })
 
+                        resultImage.enqueue(object : Callback<PublicationPhoto> {
+                            override fun onResponse(call: Call<PublicationPhoto>, response: Response<PublicationPhoto>) {
+                                var image = response.body()
+                                if(image != null) {
+                                    publicationImage = PublicationPhoto(image.id, image.publicationId, image.image)
 
+                                    var decodedImageOwner: Bitmap? = null
+                                    var decodedImagePublication: Bitmap? = null
 
+                                    if(owner?.imageUrl != null) {
+                                        var imageBytes = Base64.getDecoder().decode(owner?.imageUrl)
+                                        decodedImageOwner = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    }
 
+                                    if(publicationImage?.image != null) {
+                                        val imageBytes = Base64.getDecoder().decode(publicationImage?.image)
+                                        decodedImagePublication = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    }
 
+                                    var postPreview: PostPreview? = null
+
+                                    if(evaluationPreview != null) {
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, evaluationPreview?.average, post.location, post.price, post.createdAt)
+                                    } else {
+                                        postPreview = PostPreview(post.id, owner?.userName, owner?.id, decodedImageOwner, decodedImagePublication, post.titlePublication, post.description, 0, post.location, post.price, post.createdAt)
+                                    }
+                                    dataDBHelper.insertPublicationPreview(postPreview)
+                                    listPost.add(postPreview)
+                                    postAdapter?.notifyDataSetChanged()
+                                } else {
+                                    println("Imagen no encontrada.")
+                                }
+                            }
+
+                            override fun onFailure(call: Call<PublicationPhoto>, t: Throwable) {
+                                println(t.toString())
+                            }
+
+                        })
+*/
                         /*var decodedImageOwner: Bitmap? = null
                         var decodedImagePublication: Bitmap? = null
 
