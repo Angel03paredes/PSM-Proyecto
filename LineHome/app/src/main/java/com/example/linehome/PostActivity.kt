@@ -283,7 +283,8 @@ class PostActivity : AppCompatActivity() {
                                 textViewDescription.text = post.description
                                 pricePost.text = post.price.toString()
                                 locationPost.text = post.location
-                                ratingBar.rating = evaluationP?.average!!.toFloat()
+                                if(evaluationP != null)
+                                    ratingBar.rating = evaluationP?.average!!.toFloat()
                                 textViewUserPost.text = owner?.userName
                                 imageView8.setImageBitmap(decodedImageOwner)
 

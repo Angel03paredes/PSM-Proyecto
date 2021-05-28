@@ -48,9 +48,13 @@ class PostAdapter(private val context: Context, private val listPost: List<PostP
         }
 
         holder.itemView.toolbar2.setOnClickListener {
-            val  activityIntent =  Intent(context, OtherProfileActivity::class.java)
-            activityIntent.putExtra("userId", item.ownerId)
-            context?.startActivity(activityIntent)
+            if(item.ownerId != null) {
+                val  activityIntent =  Intent(context, OtherProfileActivity::class.java)
+                activityIntent.putExtra("userId", item.ownerId!!)
+                context?.startActivity(activityIntent)
+            } else {
+                Toast.makeText(context,"En este momento no se encuentra disponible esta acción",Toast.LENGTH_LONG).show()
+            }
         }
 
     }

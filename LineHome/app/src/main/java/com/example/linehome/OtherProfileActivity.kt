@@ -56,9 +56,11 @@ class OtherProfileActivity : AppCompatActivity() {
                 var user = response.body()
 
                 if(user != null) {
-                    val imageBytes = Base64.getDecoder().decode(user.imageUrl)
-                    val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                    imgProfileActivity.setImageBitmap(decodedImage)
+                    if(user.imageUrl != null) {
+                        val imageBytes = Base64.getDecoder().decode(user.imageUrl)
+                        val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        imgProfileActivity.setImageBitmap(decodedImage)
+                    }
 
                     txtUserName.text = user.userName
 
