@@ -5,7 +5,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import com.example.linehome.models.User
 import com.example.linehome.services.RestEngine
 import com.example.linehome.services.UserService
@@ -14,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_register.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.regex.Pattern
 
 class RegisterActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
@@ -25,10 +28,6 @@ class RegisterActivity : AppCompatActivity() {
             finish()
         }
 
-        btnRegisterRegistrar.setOnClickListener {
-            showHome()
-        }
-
         txtActivityLogIn.setOnClickListener{
             showLogIn()
         }
@@ -37,12 +36,13 @@ class RegisterActivity : AppCompatActivity() {
             addUser()
         }
 
-    }
+        editTextRegisterEmail.addTextChangedListener {
+            var textEmail = editTextRegisterEmail.text.toString()
+            btnRegisterRegistrar.isEnabled = validateEmail(textEmail)
+        }
 
-    private fun showHome() {
-        val activityHome = Intent(this, HomeActivity::class.java)
-        startActivity(activityHome)
-        finish()
+        btnRegisterRegistrar.isEnabled = false
+
     }
 
     private fun showLogIn(){
@@ -93,6 +93,11 @@ class RegisterActivity : AppCompatActivity() {
         editor.putString("imageUrl",item.imageUrl)
         editor.apply()
         startActivity(activityHome)
+    }
+
+    private fun validateEmail(email: String): Boolean {
+        var pattern: Pattern = Patterns.EMAIL_ADDRESS
+        return pattern.matcher(email).matches()
     }
 
 

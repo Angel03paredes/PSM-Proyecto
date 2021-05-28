@@ -30,20 +30,15 @@ class LoginActivity : AppCompatActivity() {
 
             if(userEmail.isNotEmpty() && password.isNotEmpty()) {
                 getUserLogin(userEmail, password)
+            } else {
+                Toast.makeText(this,"Llene todos los campos",Toast.LENGTH_LONG).show()
             }
-            //showHome()
         }
 
         txtActivitySignUp.setOnClickListener {
             showSignUp()
         }
 
-    }
-
-    private fun showHome() {
-        val activityHome = Intent(this, HomeActivity::class.java)
-        startActivity(activityHome)
-        finish()
     }
 
     private fun showSignUp(){
