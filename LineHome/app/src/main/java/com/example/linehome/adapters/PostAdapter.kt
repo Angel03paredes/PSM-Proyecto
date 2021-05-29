@@ -28,7 +28,7 @@ class PostAdapter(private val context: Context, private val listPost: List<PostP
         val item = listPost[position]
         holder.itemView.userNamePost.text = item.ownerName
         holder.itemView.titlePost.text = item.titlePublication
-        holder.itemView.descriptionPost.setText(item.description)
+        holder.itemView.descriptionPost.text = item.description
         holder.itemView.datePost.text = item.createdAt
         holder.itemView.pricePost.text = item.price.toString()
         holder.itemView.locationPost.text = item.location

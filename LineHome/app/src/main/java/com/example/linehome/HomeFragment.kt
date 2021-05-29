@@ -61,9 +61,11 @@ class HomeFragment : Fragment() {
 
         if(INTERNET_AVAILABLE) {
             getPublication()
+
         }
         else {
             showPublicationsDisconected()
+            view.progressBar6.visibility = View.GONE
         }
 
         view.swipeRefresh.setColorSchemeResources(R.color.primary_color);
@@ -89,6 +91,7 @@ class HomeFragment : Fragment() {
             listPost.add(post)
             postAdapter?.notifyDataSetChanged()
         }
+
     }
 
     private fun getPublication() {
@@ -191,6 +194,7 @@ class HomeFragment : Fragment() {
 
                                                             listPost.add(postPreview)
                                                             postAdapter?.notifyDataSetChanged()
+                                                            progressBar6.visibility = View.GONE
                                                         } else {
                                                             println("Imagen no encontrada.")
                                                         }
@@ -228,6 +232,7 @@ class HomeFragment : Fragment() {
                     }
 
                 }
+
             }
 
             override fun onFailure(call: Call<List<Post>>, t: Throwable) {
@@ -235,6 +240,7 @@ class HomeFragment : Fragment() {
             }
 
         })
+
     }
 
 

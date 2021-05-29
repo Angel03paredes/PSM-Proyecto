@@ -92,17 +92,20 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="5dp"
                         android:paddingRight="5dp"
-                        android:text="title hardcode" />
+                        android:text="title hardcode"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/descriptionPost"
                         android:layout_width="wrap_content"
-                        android:layout_height="100dp"
+                        android:layout_height="55dp"
                         android:clickable="false"
                         android:editable="false"
                         android:ems="10"
                         android:gravity="start|top"
-                        android:inputType="textMultiLine" />
+                        android:padding="5dp"
+                        android:textSize="18sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -125,9 +128,8 @@
 
                         <ImageView
                             android:id="@+id/imageView12"
-                            android:layout_width="5dp"
+                            android:layout_width="30dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             app:srcCompat="@drawable/ic_baseline_location_on_24" />
 
                         <TextView
@@ -137,11 +139,18 @@
                             android:layout_weight="1"
                             android:text="Location" />
 
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
                         <ImageView
                             android:id="@+id/imageView14"
-                            android:layout_width="5dp"
+                            android:layout_width="30dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             app:srcCompat="@drawable/ic_baseline_attach_money_24" />
 
                         <TextView
