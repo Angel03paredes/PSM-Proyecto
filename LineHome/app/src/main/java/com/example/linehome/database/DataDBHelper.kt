@@ -47,6 +47,15 @@ class DataDBHelper (var context: Context): SQLiteOpenHelper(context,SetDB.DB_NAM
 
             db?.execSQL(createPublicationPhotoTable)
 
+            //Tabla para las imagenes de las publicaciones que se guardan
+            val createPublicationPhotoPreview: String = "CREATE TABLE publication_photo_preview (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    " publicationId  INTEGER," +
+                    "image BLOB " +
+                    ")"
+
+            db?.execSQL(createPublicationPhotoPreview)
+
             val createSavePublication: String = "CREATE TABLE save_publication (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "ownerName VARCHAR(100) ," +
@@ -71,6 +80,8 @@ class DataDBHelper (var context: Context): SQLiteOpenHelper(context,SetDB.DB_NAM
                     ")"
 
             db?.execSQL(createNotificationPreview)
+
+
 
             val createPublicationPreview: String = "CREATE TABLE publication_preview (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -662,7 +673,109 @@ class DataDBHelper (var context: Context): SQLiteOpenHelper(context,SetDB.DB_NAM
 
     //SAVE PUBLICATIONS
 
+    //Funciones para las fotos de las imagenes guardadas
+    public fun getLastIdPublicationPreview(): Int? {
+        val dataBase: SQLiteDatabase = this.writableDatabase
 
+        val columns: Array<String> = arrayOf("id")
+
+        var id: Int? = null
+
+        val data = dataBase.query("publication_preview ",
+                columns,
+                null,
+                null,
+                null,
+                null,
+                SetDB.user.COL_ID + " DESC", "1")
+
+        if (data.moveToFirst()) {
+
+            id = data.getInt(data.getColumnIndex("id"))
+
+        }
+
+        data.close()
+        return id
+    }
+
+    public fun getPublicationPreviewPhotoById(id:Int):MutableList<Bitmap>{
+
+        var List: MutableList<Bitmap> = ArrayList()
+        val dataBase: SQLiteDatabase = this.writableDatabase
+
+        val columns: Array<String> = arrayOf( "image")
+
+
+        val data = dataBase.query("publication_photo_preview",
+                columns,
+                "publicationId = $id",
+                null,
+                null,
+                null,
+                null
+        )
+
+        if (data.moveToFirst()) {
+
+            do {
+                var image: Bitmap? = null
+
+                image = BitmapFactory.decodeByteArray(data.getBlob(data.getColumnIndex("image")), 0, data.getBlob(data.getColumnIndex("image")).size)
+
+
+
+                List.add(image)
+            } while (data.moveToNext())
+
+        }
+
+        return List
+    }
+
+    public fun insertPublicationPreviewPhoto(publicationId: Int, image:Bitmap):Boolean{
+        val dataBase: SQLiteDatabase = this.writableDatabase
+        val values: ContentValues = ContentValues()
+        var boolResult: Boolean = true
+
+        val baos = ByteArrayOutputStream()
+        image?.compress(Bitmap.CompressFormat.JPEG, 25, baos)
+
+
+        values.put("publicationId", publicationId)
+        values.put("image", baos.toByteArray())
+
+
+        try {
+            val result = dataBase.insert("publication_photo_preview", null, values)
+
+            if (result == (0).toLong()) {
+                print("error")
+            } else {
+                print("success")
+            }
+
+        } catch (e: Exception) {
+            Log.e("Execption", e.toString())
+            boolResult = false
+        }
+
+        dataBase.close()
+
+        return boolResult
+    }
+
+    public fun truncatePublicationPhotoPreview():Boolean{
+        val dataBase: SQLiteDatabase = this.writableDatabase
+        var boolResult: Boolean = true
+        try {
+            dataBase.execSQL("DElETE FROM publication_photo_preview")
+        }catch(e:Exception){
+            boolResult=false
+            print(e)
+        }
+        return boolResult
+    }
 
 
 }

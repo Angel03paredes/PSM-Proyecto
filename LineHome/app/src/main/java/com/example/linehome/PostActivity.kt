@@ -181,9 +181,14 @@ class PostActivity : AppCompatActivity() {
         ratingBar.rating = postPreview.evaluation?.toFloat()!!
         textViewUserPost.text = postPreview?.ownerName
         imageView8.setImageBitmap(postPreview.imageOwner)
-        val baos = ByteArrayOutputStream()
-        postPreview.imagePublication?.compress(Bitmap.CompressFormat.JPEG, 25, baos)
-        listImages.add(baos.toByteArray())
+        val images = DBApplication.dataDBHelper.getPublicationPreviewPhotoById(postPreview.id!!)
+        for(image in images){
+            val baos = ByteArrayOutputStream()
+            image?.compress(Bitmap.CompressFormat.JPEG, 25, baos)
+            listImages.add(baos.toByteArray())
+        }
+
+
         showCarousel()
     }
 

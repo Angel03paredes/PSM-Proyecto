@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Patterns
+import android.view.View
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import com.example.linehome.models.User
@@ -57,9 +58,11 @@ class RegisterActivity : AppCompatActivity() {
         val pass:String = editTextRegisterPassword.text.toString()
 
         if(name.isEmpty() && email.isEmpty() && pass.isEmpty()){
+            progressBar2.visibility = View.GONE
             Toast.makeText(this,"Llene todos los campos",Toast.LENGTH_LONG).show()
         }
         else{
+            progressBar2.visibility = View.VISIBLE
             val userService: UserService = RestEngine.getRestEngine().create(UserService::class.java)
             val result: Call<User> = userService.addUser(User(null,name,email,pass,null))
 
@@ -67,10 +70,11 @@ class RegisterActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<User>, response: Response<User>) {
                     val item = response.body()
                     if(item != null) {
-
+                        progressBar2.visibility = View.GONE
                         action(item)
 
                     }else{
+                        progressBar2.visibility = View.GONE
                         Toast.makeText(this@RegisterActivity,"No sse ha podido registrar",Toast.LENGTH_LONG).show()
                     }
                 }

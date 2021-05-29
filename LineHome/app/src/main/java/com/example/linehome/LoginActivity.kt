@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.linehome.models.User
@@ -16,9 +18,12 @@ import retrofit2.Response
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+
 
         btnLoginClose.setOnClickListener {
             finish()
@@ -48,6 +53,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun getUserLogin(emailUser: String, password: String) {
+        progressBarHor.visibility = View.VISIBLE
         val user = User(null, emailUser, emailUser, password, null)
         val userService: UserService = RestEngine.getRestEngine().create(UserService::class.java)
         val result: Call<User> = userService.getUserByUserOrEmailAndPassword(user)
@@ -56,11 +62,12 @@ class LoginActivity : AppCompatActivity() {
             override fun onResponse(call: Call<User>, response: Response<User>) {
                 val item = response.body()
                 if(item != null) {
-
+                    progressBarHor.visibility = View.GONE
                     action(item)
 
                 }else{
                     Toast.makeText(this@LoginActivity,"No se ha podido ingresar", Toast.LENGTH_LONG).show()
+                    progressBarHor.visibility = View.GONE
                 }
             }
 
