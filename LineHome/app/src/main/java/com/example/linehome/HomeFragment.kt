@@ -73,12 +73,15 @@ class HomeFragment : Fragment() {
         view.swipeRefresh.setOnRefreshListener {
             INTERNET_AVAILABLE = isNetDisponible()
             if(INTERNET_AVAILABLE) {
-                postAdapter?.notifyDataSetChanged()
+                //postAdapter?.notifyDataSetChanged()
+                listPost.clear()
+                getPublication()
             }
             else {
                 postAdapter?.notifyDataSetChanged()
+                view.swipeRefresh.isRefreshing = false
             }
-            view.swipeRefresh.isRefreshing = false
+
         }
 
         return view
@@ -195,6 +198,8 @@ class HomeFragment : Fragment() {
                                                             listPost.add(postPreview)
                                                             postAdapter?.notifyDataSetChanged()
                                                             progressBar6.visibility = View.GONE
+                                                            swipeRefresh.isRefreshing = false
+
                                                         } else {
                                                             println("Imagen no encontrada.")
                                                         }
