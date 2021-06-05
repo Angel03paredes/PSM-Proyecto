@@ -61,7 +61,7 @@ class ProfileActivity : AppCompatActivity() {
 
 
 
-        btn_changeImage.setOnClickListener {
+        btn_sendMessage.setOnClickListener {
             changeImage()
         }
 

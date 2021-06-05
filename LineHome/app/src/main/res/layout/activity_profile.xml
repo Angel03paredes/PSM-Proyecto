@@ -91,7 +91,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/imgProfileActivity" />
 
             <Button
-                android:id="@+id/btn_changeImage"
+                android:id="@+id/btn_sendMessage"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_marginStart="50dp"
@@ -121,7 +121,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_changeImage"
+                app:layout_constraintTop_toBottomOf="@+id/btn_sendMessage"
                 app:strokeColor="@color/black"
                 app:strokeWidth="2dp" />
 

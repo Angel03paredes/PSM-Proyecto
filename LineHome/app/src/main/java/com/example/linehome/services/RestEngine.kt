@@ -20,8 +20,8 @@ class RestEngine {
                     .readTimeout(5, TimeUnit.MINUTES) // read timeou
                     .build()
             val retrofit =  Retrofit.Builder()
-                //.baseUrl("http://167.99.10.71:3050/api/") // tu url
-                .baseUrl("http://localhost:3050/api/") // local
+                .baseUrl("http://167.99.10.71:3050/api/") // tu url
+                //.baseUrl("http://localhost:3050/api/") // local
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build()

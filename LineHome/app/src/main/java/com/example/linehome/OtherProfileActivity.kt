@@ -2,10 +2,14 @@ package com.example.linehome
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.linehome.adapters.PostAdapter
 import com.example.linehome.models.*
@@ -21,6 +25,7 @@ import java.util.*
 class OtherProfileActivity : AppCompatActivity() {
 
     var userId: Int? = null
+    var INTERNET_AVAILABLE : Boolean = true
 
     private var postAdapter: PostAdapter? = null
     val listPost = mutableListOf<PostPreview>()
@@ -41,6 +46,20 @@ class OtherProfileActivity : AppCompatActivity() {
 
         btnOnBack.setOnClickListener{
             finish()
+        }
+
+        btn_sendMessage.setOnClickListener {
+            Toast.makeText(this,"Esta función no esta disponible.", Toast.LENGTH_LONG).show()
+        }
+
+        INTERNET_AVAILABLE = isNetDisponible()
+
+        if(INTERNET_AVAILABLE) {
+            textView8.visibility = View.INVISIBLE
+            rvUserPost.visibility = View.VISIBLE
+        } else {
+            rvUserPost.visibility = View.INVISIBLE
+            textView8.visibility = View.VISIBLE
         }
 
         getUser()
@@ -187,5 +206,11 @@ class OtherProfileActivity : AppCompatActivity() {
             }
 
         })
+    }
+
+    private fun isNetDisponible(): Boolean {
+        val connectivityManager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val actNetInfo = connectivityManager.activeNetworkInfo
+        return actNetInfo != null && actNetInfo.isConnected
     }
 }

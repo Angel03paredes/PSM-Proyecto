@@ -2,10 +2,12 @@ package com.example.linehome.adapters
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.linehome.OtherProfileActivity
 import com.example.linehome.PostActivity
@@ -18,6 +20,8 @@ class PostAdapter(private val context: Context, private val listPost: List<PostP
     class PostViewHolder(view: View):RecyclerView.ViewHolder(view){
 
     }
+
+    var INTERNET_AVAILABLE : Boolean = true
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostAdapter.PostViewHolder {
         val itemView =  LayoutInflater.from(context).inflate(R.layout.item_home,parent,false)
@@ -48,12 +52,18 @@ class PostAdapter(private val context: Context, private val listPost: List<PostP
         }
 
         holder.itemView.toolbar2.setOnClickListener {
-            if(item.ownerId != null) {
-                val  activityIntent =  Intent(context, OtherProfileActivity::class.java)
-                activityIntent.putExtra("userId", item.ownerId!!)
-                context?.startActivity(activityIntent)
+            INTERNET_AVAILABLE = isNetDisponible()
+
+            if(INTERNET_AVAILABLE) {
+                if(item.ownerId != null) {
+                    val  activityIntent =  Intent(context, OtherProfileActivity::class.java)
+                    activityIntent.putExtra("userId", item.ownerId!!)
+                    context?.startActivity(activityIntent)
+                } else {
+                    Toast.makeText(context,"En este momento no se encuentra disponible esta acción",Toast.LENGTH_LONG).show()
+                }
             } else {
-                Toast.makeText(context,"En este momento no se encuentra disponible esta acción",Toast.LENGTH_LONG).show()
+                Toast.makeText(context,"En este momento no se encuentra disponible esta función",Toast.LENGTH_LONG).show()
             }
         }
 
@@ -61,5 +71,11 @@ class PostAdapter(private val context: Context, private val listPost: List<PostP
 
     override fun getItemCount(): Int {
         return listPost.size
+    }
+
+    private fun isNetDisponible(): Boolean {
+        val connectivityManager = context.getSystemService(AppCompatActivity.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val actNetInfo = connectivityManager.activeNetworkInfo
+        return actNetInfo != null && actNetInfo.isConnected
     }
 }
